@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Activities Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #020617, #020617);
+            font-family: Inter, Arial, sans-serif;
+            color: #e5e7eb;
+            padding: 24px;
+        }
+
+        h1 {
+            margin-bottom: 24px;
+            font-size: 22px;
+        }
+
+        /* GRID */
+        .activities {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 18px;
+        }
+
+        /* CARD */
+        .activity-item {
+            background: linear-gradient(180deg, #020617, #020617);
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 12px 25px rgba(0,0,0,.35);
+            animation: fadeUp .4s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TOP */
+        .top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .top div {
+            text-align: center;
+            flex: 1;
+        }
+
+        .top small {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .top strong {
+            display: block;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* BODY */
+        .bottom {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        canvas {
+            max-width: 130px;
+            max-height: 90px;
+        }
+
+        /* BALL */
+        .ball {
+            flex: 1;
+            text-align: center;
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .ball span {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .ball h2 {
+            font-size: 34px;
+            margin: 6px 0;
+        }
+
+        .good { color: #22c55e; }
+        .mid  { color: #facc15; }
+        .bad  { color: #ef4444; }
+
+        @media (max-width: 500px) {
+            .bottom {
+                flex-direction: column;
+            }
+
+            canvas {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>📊 Activities History</h1>
+
+<div class="activities">
+{% for act in activities %}
+    <div class="activity-item">
+
+        <div class="top">
+            <div>
+                <small>Sana</small>
+                <strong>{{ act.created_at|date:"d M Y" }}</strong>
+            </div>
+            <div>
+                <small>Region</small>
+                <strong>{{ act.region }}</strong>
+            </div>
+            <div>
+                <small>Yuborilgan</small>
+                <strong>{{ sent_count }}</strong>
+            </div>
+        </div>
+
+        <div class="bottom">
+            <canvas
+                class="activity-chart"
+                data-sent="{{ sent_count }}"
+                data-ball="{{ act.balance }}">
+            </canvas>
+
+            <div class="ball">
+                <span>Ball</span>
+                <h2>{{ act.balance }}</h2>
+
+                {% if act.ball >= 70 %}
+                    <p class="good">😄 Zo‘r natija</p>
+                {% elif act.ball >= 40 %}
+                    <p class="mid">🙂 O‘rtacha</p>
+                {% else %}
+                    <p class="bad">😔 Past</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+{% empty %}
+    <div style="opacity:.6">😴 Hali activity yo‘q</div>
+{% endfor %}
+</div>
+
+<script>
+document.querySelectorAll('.activity-chart').forEach(canvas => {
+    const sent = Number(canvas.dataset.sent);
+    const ball = Number(canvas.dataset.ball);
+
+    new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels: ['Yuborilgan', 'Ball'],
+            datasets: [{
+                data: [sent, ball],
+                borderRadius: 8
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { display: false },
+                x: { ticks: { color: '#cbd5f5' } }
+            }
+        }
+    });
+});
+</script>
+
+</body>
+</html>

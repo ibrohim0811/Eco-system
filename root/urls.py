@@ -20,10 +20,16 @@ from django.urls import path, include
 from django.conf.urls.static import static
 
 from root import settings
+from app.views import MainTemplateView, AnimationTemplateView, UserLoginView, UserInfoDetailView, user_out, ActivityListView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("apps/", include('apps.urls')), 
+    path("main/", MainTemplateView.as_view(), name='main'), 
+    path("", AnimationTemplateView.as_view(), name='animation'),
+    path("login/", UserLoginView.as_view(), name="login"),
+    path("user_profile/<uuid:uuid>", UserInfoDetailView.as_view(), name="user"),
+    path("logout/", user_out, name='logout'),
+    path("activities/", ActivityListView.as_view(), name='activities')
 ]
 
 

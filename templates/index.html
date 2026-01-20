@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECOLIFE | Premium Animated Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <style>
+        :root {
+            --green: #00ff88;
+            --blue: #00d4ff;
+            --primary_green: var(#065600);
+            --purple: #a855f7;
+            --bg: #050810;
+            --glass: rgba(255, 255, 255, .05);
+            --border: rgba(255, 255, 255, .1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* ===== BACKGROUND ANIMATIONS (THE CORE) ===== */
+        .bg-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            /* Hamma narsadan orqada */
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #0a1221 0%, #050810 100%);
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .card canvas {
+            position: static;
+            width: 100%;
+            height: 300px;
+        }
+
+        #bgParticles {
+            opacity: 0.3;
+        }
+
+        #networkCanvas {
+            opacity: 0.6;
+            mix-blend-mode: screen;
+        }
+
+        /* ===== CONTENT OVERLAY ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(5, 8, 16, .7);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        /* ===== LOGO ===== */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+
+            color: #00ff88;
+            text-transform: uppercase;
+
+            cursor: pointer;
+            position: relative;
+        }
+
+        /* icon */
+        .logo i {
+            font-size: 26px;
+            color: #00ff88;
+
+            /* glow */
+            filter: drop-shadow(0 0 6px rgba(0, 255, 136, .6)) drop-shadow(0 0 14px rgba(0, 255, 136, .4));
+
+            transition: transform .3s ease, filter .3s ease;
+        }
+
+        /* hover effect */
+        .logo:hover i {
+            transform: rotate(-10deg) scale(1.1);
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, .9)) drop-shadow(0 0 25px rgba(0, 255, 136, .7));
+        }
+
+        /* text gradient */
+        .logo span {
+            background: linear-gradient(90deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* subtle underline glow */
+        .logo::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #00ff88, transparent);
+            opacity: .6;
+        }
+
+
+        .swiper {
+            margin-top: 110px;
+            height: 400px;
+            z-index: 10;
+        }
+
+        .swiper-slide {
+            opacity: .4;
+            transform: scale(.9);
+            transition: .6s;
+        }
+
+        .swiper-slide-active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .main {
+            position: relative;
+            z-index: 10;
+            padding: 0 5%;
+        }
+
+        /* STATS & CARDS */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 50px 0;
+        }
+
+        .stat {
+            padding: 30px;
+            border-radius: 20px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .stat h2 {
+            font-size: 2.8rem;
+            margin: 10px 0;
+            font-weight: 800;
+        }
+
+        /* ===== CHARTS GRID ===== */
+        .charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .chart-title {
+            position: absolute;
+            top: 14px;
+            left: 18px;
+            font-size: 13px;
+            letter-spacing: .5px;
+            color: white;
+            opacity: .85;
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            position: relative;
+            height: 220px;
+            padding: 16px;
+
+            background: rgba(10, 20, 30, .6);
+            backdrop-filter: blur(10px);
+
+            border-radius: 16px;
+            border: 1px solid rgba(0, 255, 136, .25);
+
+            box-shadow:
+                0 0 20px rgba(0, 255, 136, .15),
+                inset 0 0 25px rgba(0, 255, 136, .05);
+
+            transition: transform .35s ease, box-shadow .35s ease;
+        }
+
+        /* hover */
+        .card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow:
+                0 0 35px rgba(0, 255, 136, .35),
+                inset 0 0 30px rgba(0, 255, 136, .08);
+        }
+
+        /* ===== CANVAS ===== */
+        .card canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* ===== REVEAL ANIMATION ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: reveal .8s ease forwards;
+        }
+
+        @keyframes reveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 50px 0 100px;
+
+        }
+
+        .services div {
+            padding: 30px;
+            border-radius: 20px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .services div:hover {
+            background: rgba(0, 255, 136, 0.1);
+            transform: translateY(-5px);
+            border-color: var(--green);
+
+        }
+
+        /* REVEAL */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ANIMATIONS */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Konteynerlar uchun umumiy dizayn */
+        .profile-container,
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* Profil rasmi dizayni (Apple Style) */
+        .profile img,
+        .profile_def img {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            /* Dumaloq shakl */
+            object-fit: cover;
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            /* Moviy chegara */
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .profile img:hover,
+        .profile_def img:hover {
+            transform: scale(1.05);
+            border-color: #22c55e;
+            /* Hover bo'lganda Eco Green rangga o'tadi */
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+        }
+
+        /* Login va Register tugmalari uchun dizayn */
+        .user-box button {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Tizimga kirish tugmasi (Oq/Apple Style) */
+        .btn-login {
+            background: rgba(255, 255, 255, 0.9);
+            color: #000;
+            border: none;
+        }
+
+        .btn-login:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Ro'yxatdan o'tish tugmasi (Shaffof/Border) */
+        .btn-reg {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-reg:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #fff;
+        }
+
+        /* Eco element - Tugma ostidagi yashil urg'u */
+        .btn-reg {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-reg::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #22c55e;
+            /* Eco Green */
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .btn-reg:hover::after {
+            transform: scaleX(1);
+        }
+
+        a {
+            text-decoration: none;
+            color: white;
+        }
+
+        /*dropdown*/
+        .profile-dropdown {
+            position: relative;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50px;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+
+        .profile-trigger:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .arrow-icon {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        /* Dropdown Oynasi */
+        .dropdown-window {
+            display: none;
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 0;
+            width: 240px;
+            background: rgba(10, 20, 40, 0.85);
+            /* Dark Blue Glass */
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            z-index: 1000;
+            transform-origin: top right;
+        }
+
+        .dropdown-info {
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .d-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .d-status {
+            font-size: 11px;
+            color: #22c55e;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 4px;
+        }
+
+        .d-status i {
+            font-size: 6px;
+        }
+
+        .dropdown-links {
+            padding: 8px;
+        }
+
+        .dropdown-links a,
+        .logout-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 12px;
+            transition: 0.2s;
+            width: 100%;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .dropdown-links a:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .d-sep {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 8px 0;
+        }
+
+        .logout-link:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* Animatsiya uchun klass */
+        .show-apple-menu {
+            display: block !important;
+            animation: appleScale 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        @keyframes appleScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+    </style>
+</head>
+{% load static %}
+
+<body>
+
+    <div class="bg-wrapper">
+        <canvas id="bgParticles"></canvas>
+        <canvas id="networkCanvas"></canvas>
+    </div>
+
+    <nav>
+        <div class="logo"><i class="fa-solid fa-leaf"></i> <span>ECOLIFE</span></div>
+        <div class="user-box"
+            style="display:flex; align-items:center; gap:10px; background:var(--glass); padding:5px 15px; border-radius:30px;">
+            <i class="fa-solid fa-circle-nodes" style="color:var(--green); animation: pulse 2s infinite;"></i>
+
+        </div>
+        {% if user.is_authenticated %}
+        <div class="profile-dropdown">
+            <div class="profile-container" onclick="toggleMenu(event)">
+                {% if user.image %}
+                <div class="profile">
+                    <img src="{{ user.image.url }}" alt="{{ user.username }}" class="profile-img">
+                </div>
+                {% else %}
+                <div class="profile_def">
+                    <img src="{% static 'images/user.webp' %}" alt="Default Profile" class="profile-img">
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="dropdown-window" id="profileMenu">
+                <div class="dropdown-info">
+                    <span class="d-name">{{ user.username }}</span>
+                    <span class="d-status"><i class="fas fa-circle"></i> Online</span>
+                </div>
+
+                <div class="dropdown-links">
+                    <a href="{% url 'user' uuid=user.uuid %}">
+                        <i class="far fa-user-circle"></i> Profile Settings
+                    </a>
+                    <a href="{% url 'activities' %}">
+                        <i class="fas fa-chart-line"></i> Activities
+                    </a>
+                    <div class="d-sep"></div>
+                    <form action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-link">
+                            <i class="fas fa-sign-out-alt"></i> Log Out
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="user-box">
+            <a href="{% url 'login' %}"><button class="btn-login">Tizimga kirish</button></a>
+            <a href="https://web.telegram.org/a/#8367027810" target="_blank"><button class="btn-reg">Ro'yxatdan
+                    o'tish</button></a>
+        </div>
+        {% endif %}
+    </nav>
+
+    <div class="swiper">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide"><img
+                    src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1200&q=80">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80">
+            </div>
+            <div class="swiper-slide"><img src="https://i.pinimg.com/736x/27/c4/ac/27c4ac10d3760c0d1292901a424fec6f.jpg"
+                    alt="3">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://applescoop.org/image/wallpapers/mac/71776153608530025-64431188545317882.jpg" alt="3">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://applescoop.org/image/wallpapers/mac/23802036880670431-15363844030559220.jpg" alt="3">
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="stats">
+            <div class="stat reveal">
+                <p style="color:var(--green)">Faol foydalanuvchilar</p>
+                <h2 id="users">0</h2>
+            </div>
+            <div class="stat reveal">
+                <p style="color:var(--blue)">Saqlangan CO₂ (kg)</p>
+                <h2 id="eco">0</h2>
+            </div>
+            <div class="stat reveal">
+                <p style="color:var(--purple)">To‘lovlar ($)</p>
+                <h2 id="money">0</h2>
+            </div>
+        </div>
+
+        <div class="charts">
+            <div class="card reveal">
+                <h4 class="chart-title">
+                    Web sahifa funksiyalari
+                </h4><canvas id="c1"></canvas>
+            </div>
+            <div class="card reveal">
+                <h4 class="chart-title">
+                    Ekologik zararlar
+                </h4>
+                <canvas id="c2"></canvas>
+            </div>
+            <div class="card reveal">
+                <h4 class="chart-title">
+                    Daromad
+                </h4>
+                <canvas id="c3"></canvas>
+            </div>
+        </div>
+
+        <div class="services">
+            <a href="https://web.telegram.org/a/#8367027810">
+                <div class="reveal">
+                    <h3>🚨 Zarar xabari</h3>
+                    <p>Muammo haqida video yuboring</p>
+                </div>
+            </a>
+            <a href="https://web.telegram.org/a/#8367027810">
+                <div class="reveal">
+                    <h3>💬 Monitoring</h3>
+                    <p>Real-vaqtda nazorat tizimi</p>
+                </div>
+            </a>
+            <a href="https://web.telegram.org/a/#8367027810">
+                <div class="reveal">
+                    <h3>🤖 AI Analysis</h3>
+                    <p>Sun'iy intellekt tahlili</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script>
+        // Swiper
+        new Swiper('.swiper', { slidesPerView: 1.5, centeredSlides: true, loop: true, autoplay: { delay: 3000 } });
+
+        // Animation Reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Counters
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerText = Math.floor(progress * (end - start) + start).toLocaleString();
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+        setTimeout(() => {
+            animateValue("users", 0, 15420, 2000);
+            animateValue("eco", 0, 89400, 2000);
+            animateValue("money", 0, 12500, 2000);
+        }, 500);
+
+        // Charts
+        const ctxConfig = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { display: false }, y: { display: false } }
+        };
+        new Chart(document.getElementById('c1'), { type: 'line', data: { labels: [1, 2, 3, 4, 5, 6], datasets: [{ data: [10, 40, 20, 80, 50, 90], borderColor: '#00ff88', tension: 0.4, fill: true, backgroundColor: 'rgba(0,255,136,0.1)' }] }, options: ctxConfig });
+        new Chart(document.getElementById('c2'), { type: 'doughnut', data: { datasets: [{ data: [75, 25], backgroundColor: ['#00d4ff', '#1a2233'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false } } } });
+        new Chart(document.getElementById('c3'), { type: 'bar', data: { labels: [1, 2, 3, 4], datasets: [{ data: [40, 70, 50, 90], backgroundColor: '#a855f7', borderRadius: 5 }] }, options: ctxConfig });
+
+        /* ========================= 
+           BACKGROUND ENGINE 
+        ========================= */
+        const pCanvas = document.getElementById("bgParticles");
+        const nCanvas = document.getElementById("networkCanvas");
+        const pCtx = pCanvas.getContext("2d");
+        const nCtx = nCanvas.getContext("2d");
+
+        let w, h, particles = [], nodes = [];
+
+        function init() {
+            w = window.innerWidth;
+            h = window.innerHeight;
+            pCanvas.width = nCanvas.width = w;
+            pCanvas.height = nCanvas.height = h;
+
+            particles = [];
+            for (let i = 0; i < 60; i++) {
+                particles.push({ x: Math.random() * w, y: Math.random() * h, r: Math.random() * 2, s: Math.random() * 0.5 + 0.1 });
+            }
+
+            nodes = [];
+            for (let i = 0; i < 80; i++) {
+                nodes.push({ x: Math.random() * w, y: Math.random() * h, vx: Math.random() * 0.4 - 0.2, vy: Math.random() * 0.4 - 0.2 });
+            }
+        }
+
+        function draw() {
+            pCtx.clearRect(0, 0, w, h);
+            nCtx.clearRect(0, 0, w, h);
+
+            // Particles (Rising bubbles)
+            pCtx.fillStyle = "rgba(0, 255, 136, 0.4)";
+            particles.forEach(p => {
+                pCtx.beginPath();
+                pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                pCtx.fill();
+                p.y -= p.s;
+                if (p.y < -10) p.y = h + 10;
+            });
+
+            // Network (Connective dots)
+            nodes.forEach((n, i) => {
+                n.x += n.vx; n.y += n.vy;
+                if (n.x < 0 || n.x > w) n.vx *= -1;
+                if (n.y < 0 || n.y > h) n.vy *= -1;
+
+                nCtx.fillStyle = "rgba(0, 212, 255, 0.5)";
+                nCtx.beginPath();
+                nCtx.arc(n.x, n.y, 1.5, 0, Math.PI * 2);
+                nCtx.fill();
+
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const m = nodes[j];
+                    const dist = Math.hypot(n.x - m.x, n.y - m.y);
+                    if (dist < 150) {
+                        nCtx.strokeStyle = `rgba(0, 212, 255, ${1 - dist / 150})`;
+                        nCtx.lineWidth = 0.5;
+                        nCtx.beginPath();
+                        nCtx.moveTo(n.x, n.y);
+                        nCtx.lineTo(m.x, m.y);
+                        nCtx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener("resize", init);
+        init();
+        draw();
+        //dropdown
+
+        function toggleMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('show-apple-menu');
+        }
+
+        // Menyu ochiq turganda ekranning boshqa joyiga bossa yopiladi
+        document.addEventListener('click', function (event) {
+            const menu = document.getElementById('profileMenu');
+            if (menu && menu.classList.contains('show-apple-menu')) {
+                menu.classList.remove('show-apple-menu');
+            }
+        });
+    </script>
+</body>
+
+</html>
+<!-- <div class="swiper">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide"><img
+                    src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZWFydGglMjBzcGFjZXxlbnwwfHwwfHx8MA%3D%3D"
+                    alt="1"></div>
+            <div class="swiper-slide"><img
+                    src="https://static.vecteezy.com/system/resources/previews/069/816/984/large_2x/global-network-map-digital-connections-glowing-nodes-dark-background-website-banner-photo.jpg"
+                    alt="2"></div>
+            <div class="swiper-slide"><img
+                    src="https://4kwallpapers.com/images/wallpapers/planet-earth-night-view-illuminated-orbit-dark-background-5k-2560x1440-8934.jpg" alt="3">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://mir-s3-cdn-cf.behance.net/project_modules/1400/c78220177163597.64d1c2168a0ab.jpg"
+                    alt="3">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://c4.wallpaperflare.com/wallpaper/355/684/843/earth-path-dark-forest-wallpaper-preview.jpg"
+                    alt="3">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://images.unsplash.com/photo-1477346611705-65d1883cee1e?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fDRrJTIwbmF0dXJlfGVufDB8fDB8fHww"
+                    alt="3">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://images.unsplash.com/photo-1426604966848-d7adac402bff?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8NGslMjBuYXR1cmV8ZW58MHx8MHx8fDA%3D"
+                    alt="3">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://i.pinimg.com/736x/27/c4/ac/27c4ac10d3760c0d1292901a424fec6f.jpg"
+                    alt="3">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://applescoop.org/image/wallpapers/mac/71776153608530025-64431188545317882.jpg"
+                    alt="3">
+            </div>
+            <div class="swiper-slide"><img
+                    src="https://applescoop.org/image/wallpapers/mac/23802036880670431-15363844030559220.jpg"
+                    alt="3">
+            </div>
+        </div> -->

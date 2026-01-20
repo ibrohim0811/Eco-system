@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirish | Eco System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: radial-gradient(circle at top right, #0a192f, #020617);
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: #f8fafc;
+        }
+        /* Apple uslubidagi shishasimon effekt */
+        .apple-glass {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .eco-accent {
+            color: #22c55e; /* Eco green accent */
+            text-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+        }
+        .apple-input {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .apple-input:focus {
+            border-color: #3b82f6; /* Apple blue focus */
+            background: rgba(255, 255, 255, 0.06);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        .apple-button {
+            background: #ffffff;
+            color: #000000;
+            transition: all 0.2s ease;
+        }
+        .apple-button:hover {
+            background: #e2e8f0;
+            transform: scale(1.01);
+        }
+        .leaf-icon {
+            filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.4));
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <div class="apple-glass w-full max-w-[400px] p-10 rounded-[40px] shadow-2xl">
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-green-600 p-[1px] mb-6">
+                <div class="w-full h-full bg-[#020617] rounded-2xl flex items-center justify-center">
+                    <svg class="w-8 h-8 eco-accent leaf-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M12.416 3.376a6.5 6.5 0 00-4.016 4.016 6.5 6.5 0 004.016 4.016 6.5 6.5 0 004.016-4.016 6.5 6.5 0 00-4.016-4.016zM6.5 12.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13z"></path>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-2xl font-semibold tracking-tight text-white">Eco System</h1>
+            <p class="text-slate-400 text-sm mt-2">Xush kelibsiz, davom etish uchun kiring.</p>
+        </div>
+
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            <div class="space-y-2">
+                <label class="text-xs font-medium text-slate-400 ml-1 uppercase tracking-wider">Username</label>
+                <input type="text" name="username" required
+                    class="apple-input w-full px-5 py-4 rounded-2xl text-white placeholder-slate-600 text-sm"
+                    placeholder="example_user">
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-xs font-medium text-slate-400 ml-1 uppercase tracking-wider text-green-500/70">Parol</label>
+                <input type="password" name="password" required
+                    class="apple-input w-full px-5 py-4 rounded-2xl text-white placeholder-slate-600 text-sm"
+                    placeholder="••••••••">
+            </div>
+
+            <div class="pt-4">
+                <button type="submit" class="apple-button w-full py-4 rounded-2xl font-semibold text-sm shadow-xl">
+                    Tizimga kirish
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-10 text-center">
+            <p class="text-slate-500 text-xs">
+                Akkauntingiz yo'qmi? 
+                <a href="https://web.telegram.org/a/#8367027810" class="text-blue-500 hover:text-blue-400 font-medium transition-colors ml-1">
+                    Ro'yxatdan o'tish
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <div class="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden opacity-20">
+        <div class="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-green-900 rounded-full blur-[120px]"></div>
+    </div>
+
+</body>
+</html>

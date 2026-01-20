@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecolife | Yuklanmoqda...</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #00ff88;
+            --bg-color: #050810;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Fon uchun gradient nurlar */
+        .bg-glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: var(--primary-green);
+            filter: blur(150px);
+            opacity: 0.15;
+            z-index: 1;
+        }
+
+        /* Markaziy kontent */
+        .content {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .logo-box {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--primary-green);
+            letter-spacing: 8px;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: mainFadeIn 2.5s ease-out forwards;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .logo-box i {
+            filter: drop-shadow(0 0 15px var(--primary-green));
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-green);
+            animation: progress 3s linear forwards;
+        }
+
+        /* Barglar stili */
+        .leaf {
+            position: absolute;
+            top: -50px;
+            pointer-events: none;
+            z-index: 5;
+            filter: drop-shadow(0 0 5px rgba(0, 255, 136, 0.3));
+        }
+
+        @keyframes mainFadeIn {
+            0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+            50% { opacity: 1; transform: scale(1.05) translateY(0); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes progress {
+            100% { left: 0; }
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(720deg) translateX(50px); opacity: 0; }
+        }
+
+        .status-text {
+            color: white;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.5;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="content">
+        <div class="logo-box">
+            <i class="fas fa-leaf"></i>
+            <span>ECOLIFE</span>
+        </div>
+        <div class="loading-bar"></div>
+        <p class="status-text">Tizimga kirilmoqda...</p>
+    </div>
+
+    <audio id="introSound" src="https://assets.mixkit.co/active_storage/sfx/2443/2443-preview.mp3" preload="auto"></audio>
+
+    <script>
+        const sound = document.getElementById('introSound');
+
+        // Barglarni yaratish
+        function createLeaf() {
+            const leaf = document.createElement('div');
+            leaf.className = 'leaf';
+            
+            // Barg ko'rinishi (FontAwesome ikonkasidan foydalanamiz)
+            leaf.innerHTML = `<i class="fas fa-leaf" style="color: ${Math.random() > 0.5 ? '#00ff88' : '#16a34a'}; font-size: ${Math.random() * 20 + 10}px;"></i>`;
+            
+            leaf.style.left = Math.random() * 100 + "vw";
+            leaf.style.animation = `fall ${Math.random() * 3 + 4}s linear forwards`;
+            
+            document.body.appendChild(leaf);
+
+            setTimeout(() => { leaf.remove(); }, 7000);
+        }
+
+        // Barglar generatori
+        const leafInterval = setInterval(createLeaf, 300);
+
+        // Ovoz va Redirect
+        window.addEventListener('load', () => {
+            // Ovozni avtomatik qo'yishga urinish
+            sound.volume = 0.4;
+            sound.play().catch(() => {
+                console.log("Audio auto-play blocked");
+            });
+
+            // 5 soniyadan keyin redirect
+            setTimeout(() => {
+                clearInterval(leafInterval);
+                // Dashboard faylingiz nomini shu yerga yozing
+                window.location.href = "{% url 'main' %}";
+            }, 5000);
+        });
+
+        // Ekranni birinchi marta bosganda ovoz chiqishini kafolatlash
+        window.addEventListener('click', () => {
+            if (sound.paused) sound.play();
+        }, { once: true });
+    </script>
+</body>
+</html>
