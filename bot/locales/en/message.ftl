@@ -1,11 +1,52 @@
-start_text = 👋 Hello! Welcome to the rental bot
+start_text = Welcome to our bot !
 language_button = 🌐 Change language
 ijara_o = 🔎 Rent an object
 ijara_b = 🔑 Give for rent
-about = ❓ How it works
+about_us = About us ℹ️
 
 select_lang = Select the desired language 👇
 uzbek = Uzbek 🌍
 rus = Russian 🌍
 en = English 🌍
 sucsess_lang = Language successfully changed ✅
+hello = 👋 Hello
+settings= Settings ⚙️
+change_lang= Change Language
+uz = Uzbek
+ru = Russian
+en = English
+offer = Questions and offers 💬
+
+err_region = Please use only buttons 👇
+name = Name
+region = District
+phone = Phone
+save = Save ✅
+saved = ✅ You are registered!
+err_saving = ❗ You are already registered
+
+eco_alert = ⚠️ Ecologic alert
+tel = Share your phone number 📞
+
+text = Register to get full use of the bot
+region = Enter your Region
+err_tel = Phone number is invalid ❌
+savol = Ask anything
+choose = Choose one from the menu 👇
+quest = Questions 💬
+off_er = Offers 💬
+exit_chat= Exit Chat
+conn_admin = Contact admin 🔗
+save_password = Save your password ⚠️
+alert_info = Dear User, we ask you to follow the rules of the bot while continuing the process! During the process, we ask you to indicate in which district of the Tashkent region the ecologically damaged environment is located and its exact location in the video message, and at the same time, we ask you to provide complete information about the ecological damage! Thank you for your attention
+alert_button = Enter the ecologically damaged district
+alert = Save your Login and Password !
+attend = Note: The video message must be a standard Telegram circular video or mp.4 or similar video message, and the video size must not exceed 10mb!
+username = username
+parol = Password
+accepted = Your video message has been received. We will respond within 24 hours.
+amount = Your video message has been confirmed and your account has been credited with 5000 UZS ✅
+declined = Your video message was not verified ❌
+first_name = Enter your First name
+last_name = Enter your Last Name
+info_admin = 👨‍💻This bot is an Asynchronous Telegram Bot created by the leader of the Eco Generation group.
