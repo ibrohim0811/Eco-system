@@ -25,26 +25,30 @@ class MainTemplateView(TemplateView):
 class UserInfoDetailView(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'user/user_info.html'    
-    login_url = "auth/login.html"
-    
+    login_url = "auth/login.html" 
     slug_field = 'uuid' 
     slug_url_kwarg = 'uuid'
     
     def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-        user = self.request.user
-        data['user'] = user
-        return data
+        context = super().get_context_data(**kwargs)
+        context['profile_user'] = self.get_object()
+        return context
     
     def post(self, request, *args, **kwargs):
-        profile = request.user  
+   
+        self.object = self.get_object() 
+        
         image = request.FILES.get('profile_image')
+        
         if image:
-            profile.image = image
-            profile.save()
-        return redirect('main')
-    
-    
+            
+            if self.object.image and self.object.image.name != 'users/image.png':
+                self.object.image.delete(save=False)
+                
+            self.object.image = image
+            self.object.save()
+            
+        return redirect('main')    
     
 class UserLoginView(NotLoginRequiredMixin, FormView):
     form_class = UserLoginForm
@@ -72,14 +76,15 @@ class ActivityListView(LoginRequiredMixin, ListView):
         print("ACTIVITIES:", qs.count())
         return qs.order_by("-created_at")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    
+    context["profile_user"] = self.request.user
+    return context
 
-        context["sent_count"] = UserActivities.objects.filter(
-            user=self.request.user
-        ).count()
 
-        return context
+
+        
 
 
 def user_out(request):

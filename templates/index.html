@@ -584,7 +584,7 @@
                     <a href="{% url 'user' uuid=user.uuid %}">
                         <i class="far fa-user-circle"></i> Profile Settings
                     </a>
-                    <a href="{% url 'activities' %}">
+                    <a href="{% url 'activities' uuid=user.uuid %}">
                         <i class="fas fa-chart-line"></i> Activities
                     </a>
                     <div class="d-sep"></div>

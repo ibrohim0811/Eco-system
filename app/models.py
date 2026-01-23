@@ -18,7 +18,7 @@ class User(AbstractUser):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     balance = models.IntegerField(default=0)
     about = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='media/users/', default='users/image.png')
+    image = models.ImageField(upload_to='users/', default='users/image.png')
     def __str__(self):
         return self.username
     

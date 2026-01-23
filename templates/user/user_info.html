@@ -348,14 +348,14 @@
 
     <div class="profile-container">
         <div class="profile-header">
-            {% if user.image %}
+            {% if profile_user.image %}
             <div class="avatar-wrapper">
-                <img src="{{ user.image.url }}" class="profile-avatar" alt="Avatar">
+                <img src="{{ profile_user.image.url }}" class="profile-avatar" alt="Avatar">
             </div>
             <div class="status-dot"></div>
             {% else %}
             <div class="avatar-wrapper">
-                <img src="https://ui-avatars.com/api/?name={{ user.username }}&size=120&background=00ff88&color=000"
+                <img src="https://ui-avatars.com/api/?name={{ profile_user.username }}&size=120&background=00ff88&color=000"
                     class="profile-avatar" alt="Avatar">
                 <div class="status-dot"></div>
             </div>
@@ -364,7 +364,8 @@
             <form method="post" enctype="multipart/form-data" class="direct-upload-form">
                 {% csrf_token %}
                 <div class="upload-controls">
-                    <input type="file" name="profile_image" id="avatar-file" class="inputfile" accept="image/*" required>
+                    <input type="file" name="profile_image" id="avatar-file" class="inputfile" accept="image/*"
+                        required>
                     <label for="avatar-file" class="btn-select">
                         <i class="fas fa-image"></i> Rasm tanlash
                     </label>
@@ -399,7 +400,7 @@
             <div class="stat-card">
                 <i class="fas fa-award"></i>
                 <span class="stat-value">Holati</span>
-                {% if user.is_active  %}
+                {% if user.is_active %}
                 <span class="stat-label">Aktiv</span>
                 {% else %}
                 <span class="stat-label">Passiv</span>
@@ -409,29 +410,64 @@
 
         <div class="activity-section">
             <h3><i class="fas fa-history"></i> Oxirgi faolliklar</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Sana</th>
-                        <th>Tuman</th>
-                        <th>Zarar turi</th>
-                        <th>Holat</th>
-                        <th>Ball</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for i in phone_act %}
-                    <tr>
-                        <td>{{ i.created_at }}</td>
-                        <td>{{ i.region }}</td>
-                        <td>Videoxabar | {{ i.video_file_id }}</td>
-                        <td><span class="badge-status">{{ i.status }}</span></td>
-                        <td>{{ i.amount }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sana</th>
+                            <th>Tuman</th>
+                            <th>Zarar turi</th>
+                            <th>Holat</th>
+                            <th>Ball</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in profile_user.phone_act.all %}
+                        <tr>
+                            <td>{{ i.created_at|date:"d.m.Y" }}</td>
+                            <td>{{ i.region }}</td>
+                            <td>Videoxabar</td>
+                            <td>
+                                {% if i.status == "accepted" %}
+                                <span class="badge-status"
+                                    style="background: rgba(0, 255, 136, 0.1); color: var(--primary-green);">
+                                    <i class="fas fa-check-circle"></i> Qabul qilindi
+                                </span>
+                                {% elif i.status == "rejected" %}
+                                <span class="badge-status" style="background: rgba(255, 71, 87, 0.1); color: #ff4757;">
+                                    <i class="fas fa-times-circle"></i> Rad etildi
+                                </span>
+                                {% else %}
+                                <span class="badge-status"
+                                    style="background: rgba(0, 212, 255, 0.1); color: var(--accent-blue);">
+                                    <i class="fas fa-clock"></i> Kutilmoqda
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong
+                                    style="color: {% if i.amount > 0 %}var(--primary-green){% else %}#94a3b8{% endif %};">
+                                    +{{ i.amount }}
+                                </strong>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 30px; color: #94a3b8;">
+                                Hozircha faolliklar mavjud emas.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
+    </div>
+    <div class="back-home-wrapper">
+        <a href="{% url 'activities' uuid=user.uuid %}" class="btn-home">
+            <i class="fas fa-arrow-up"></i>
+            <span>Ko'proq faollilarni ko'rish</span>
+        </a>
     </div>
     <div class="back-home-wrapper">
         <a href="{% url 'main' %}" class="btn-home">

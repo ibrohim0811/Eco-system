@@ -29,7 +29,7 @@ urlpatterns = [
     path("login/", UserLoginView.as_view(), name="login"),
     path("user_profile/<uuid:uuid>", UserInfoDetailView.as_view(), name="user"),
     path("logout/", user_out, name='logout'),
-    path("activities/", ActivityListView.as_view(), name='activities')
+    path("activities/<uuid:uuid>", ActivityListView.as_view(), name='activities')
 ]
 
 

@@ -1,192 +1,244 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="uz">
+
 <head>
     <meta charset="UTF-8">
-    <title>Activities Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoLife | Activity Dashboard</title>
 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        :root {
+            --primary-green: #00ff88;
+            --accent-blue: #00d4ff;
+            --bg-color: #050810;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
         body {
-            background: linear-gradient(135deg, #020617, #020617);
-            font-family: Inter, Arial, sans-serif;
-            color: #e5e7eb;
-            padding: 24px;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: white;
+            margin: 0;
+            padding: 20px;
         }
 
         h1 {
-            margin-bottom: 24px;
-            font-size: 22px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            background: linear-gradient(to right, #fff, var(--primary-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        /* GRID */
-        .activities {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 18px;
+        .dashboard-container {
+            max-width: 1100px;
+            margin: auto;
         }
 
-        /* CARD */
-        .activity-item {
-            background: linear-gradient(180deg, #020617, #020617);
-            border: 1px solid #1e293b;
-            border-radius: 16px;
-            padding: 18px;
-            box-shadow: 0 12px 25px rgba(0,0,0,.35);
-            animation: fadeUp .4s ease;
+        .activity-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* TOP */
-        .top {
+        .activity-top {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 14px;
+            margin-bottom: 15px;
         }
 
-        .top div {
-            text-align: center;
-            flex: 1;
-        }
-
-        .top small {
+        .activity-top div {
+            font-size: 0.9rem;
             color: #94a3b8;
-            font-size: 11px;
         }
 
-        .top strong {
+        .activity-top div strong {
             display: block;
-            font-size: 14px;
-            margin-top: 4px;
-        }
-
-        /* BODY */
-        .bottom {
-            display: flex;
-            align-items: center;
-            gap: 14px;
+            font-size: 1.1rem;
+            color: #fff;
         }
 
         canvas {
-            max-width: 130px;
-            max-height: 90px;
+            margin-top: 10px;
+            max-height: 120px;
         }
 
-        /* BALL */
-        .ball {
-            flex: 1;
+        .activity-ball {
             text-align: center;
-            background: #020617;
-            border: 1px solid #1e293b;
-            border-radius: 14px;
-            padding: 12px;
+            margin-top: 10px;
         }
 
-        .ball span {
-            font-size: 12px;
-            color: #94a3b8;
+        .activity-ball h2 {
+            margin: 5px 0;
+            font-size: 24px;
         }
 
-        .ball h2 {
-            font-size: 34px;
-            margin: 6px 0;
+        .good {
+            color: #22c55e;
         }
 
-        .good { color: #22c55e; }
-        .mid  { color: #facc15; }
-        .bad  { color: #ef4444; }
+        .mid {
+            color: #facc15;
+        }
 
-        @media (max-width: 500px) {
-            .bottom {
-                flex-direction: column;
-            }
+        .bad {
+            color: #ef4444;
+        }
 
-            canvas {
-                max-width: 100%;
-            }
+        .back-home-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+            padding-bottom: 50px;
+        }
+
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 18px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-home i {
+            font-size: 18px;
+            color: var(--primary-green);
+            transition: transform 0.3s ease;
+        }
+
+        .btn-home:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-green);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 255, 136, 0.15);
+        }
+
+        .btn-home:hover i {
+            transform: translateX(-5px);
+            color: var(--accent-blue);
+        }
+
+        .btn-home:active {
+            transform: translateY(0) scale(0.98);
         }
     </style>
 </head>
 
 <body>
 
-<h1>📊 Activities History</h1>
+    <h1>📊 Activity Dashboard</h1>
 
-<div class="activities">
-{% for act in activities %}
-    <div class="activity-item">
+    <div class="dashboard-container">
+        {% for act in  profile_user.phone_act.all %}
+        <div class="activity-card">
 
-        <div class="top">
-            <div>
-                <small>Sana</small>
-                <strong>{{ act.created_at|date:"d M Y" }}</strong>
+            <div class="activity-top">
+                <div>
+                    Sana
+                    <strong>{{ act.created_at|date:"d.m.Y" }}</strong>
+                </div>
+                <div>
+                    Tuman
+                    <strong>{{ act.region }}</strong>
+                </div>
+                <div>
+                    Status
+                    <strong>{{ act.status|capfirst }}</strong>
+                </div>
             </div>
-            <div>
-                <small>Region</small>
-                <strong>{{ act.region }}</strong>
-            </div>
-            <div>
-                <small>Yuborilgan</small>
-                <strong>{{ sent_count }}</strong>
-            </div>
-        </div>
 
-        <div class="bottom">
-            <canvas
-                class="activity-chart"
-                data-sent="{{ sent_count }}"
-                data-ball="{{ act.balance }}">
+            <canvas class="activity-chart" 
+                    data-sent="1" 
+                    data-ball="{{ act.amount }}" 
+                    height="100">
             </canvas>
 
-            <div class="ball">
-                <span>Ball</span>
-                <h2>{{ act.balance }}</h2>
-
-                {% if act.ball >= 70 %}
-                    <p class="good">😄 Zo‘r natija</p>
-                {% elif act.ball >= 40 %}
-                    <p class="mid">🙂 O‘rtacha</p>
+            <div class="activity-ball">
+                <h2>{{ act.amount }} Ball</h2>
+                {% if act.amount >= 70 %}
+                <p class="good">😄 Zo‘r! Juda yaxshi natija</p>
+                {% elif act.amount >= 40 %}
+                <p class="mid">🙂 O‘rtacha, oshirish mumkin</p>
                 {% else %}
-                    <p class="bad">😔 Past</p>
+                <p class="bad">😔 Pastroq, harakat qilamiz</p>
                 {% endif %}
             </div>
+
         </div>
-
+        {% empty %}
+        <p style="text-align:center; color:#94a3b8; padding:40px;">
+            Hozircha faolliklar mavjud emas.
+        </p>
+        {% endfor %}
     </div>
-{% empty %}
-    <div style="opacity:.6">😴 Hali activity yo‘q</div>
-{% endfor %}
-</div>
 
-<script>
-document.querySelectorAll('.activity-chart').forEach(canvas => {
-    const sent = Number(canvas.dataset.sent);
-    const ball = Number(canvas.dataset.ball);
+    <div class="back-home-wrapper">
+        <a href="{% url 'main' %}" class="btn-home">
+            <i class="fas fa-arrow-left"></i>
+            <span>Bosh sahifaga qaytish</span>
+        </a>
+    </div>
 
-    new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels: ['Yuborilgan', 'Ball'],
-            datasets: [{
-                data: [sent, ball],
-                borderRadius: 8
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { display: false },
-                x: { ticks: { color: '#cbd5f5' } }
-            }
-        }
-    });
-});
-</script>
+    <script>
+        document.querySelectorAll('.activity-chart').forEach((canvas) => {
+            const ball = Number(canvas.dataset.ball);
+
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: ['Ball'],
+                    datasets: [{
+                        label: 'Ball',
+                        data: [ball],
+                        backgroundColor: 'rgba(0, 255, 136, 0.6)',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#cbd5f5' }
+                        },
+                        x: {
+                            ticks: { color: '#cbd5f5' }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>

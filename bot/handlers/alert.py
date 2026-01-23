@@ -8,7 +8,8 @@ from aiogram.fsm.context import FSMContext
 from dotenv import load_dotenv
 from aiogram.types import ReplyKeyboardRemove
 from django.db import transaction
-
+from aiogram.types import CallbackQuery
+ 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE_DIR)
@@ -57,35 +58,24 @@ async def alert_process1(msg: types.Message, i18n: I18nContext, state:FSMContext
         await msg.answer(i18n("alert_button"), reply_markup=regions())
         
 @dp_a.message(EcoAlert.video, F.video_note)
-async def vide_process(msg: types.Message, i18n: I18nContext, state:FSMContext):
-    
+async def vide_process(msg: types.Message, i18n: I18nContext, state: FSMContext):
     video = msg.video_note
     if video.file_size > 10 * 1024 * 1024:
         return await msg.answer("Video 10 MB dan katta!")
 
-   
-    video_ = msg.video_note
+    # Userni bazadan olamiz
     user_obj = await sync_to_async(User.objects.get)(telegram_id=msg.from_user.id)
     
+    # FAQAT BIR MARTA yaratamiz
     activity = await sync_to_async(UserActivities.objects.create)(
         user=user_obj,
         amount=5000,
         region=user_obj.district,
         status="pending",
-        video_file_id=video.file_id  # Modeldagi maydon nomi
+        video_file_id=video.file_id
     )
     
-    global user_id
-    user_id = msg.from_user.id
-    
-    user_obj = await sync_to_async(User.objects.get)(telegram_id=msg.from_user.id)
-
-    await sync_to_async(UserActivities.objects.create)(
-    user=user_obj,          
-    amount=5000,
-    region=user_obj.district,
-    status="pending"
-)
+    # State'ni yangilaymiz
     await state.update_data(
         video=video.file_id, 
         user_id=msg.from_user.id,
@@ -94,60 +84,87 @@ async def vide_process(msg: types.Message, i18n: I18nContext, state:FSMContext):
 
     await msg.answer(i18n("accepted"), reply_markup=main_menu(i18n))
 
+    # Adminga yuboramiz
     await bot.send_video_note(
-    ADMIN_ID, 
-    video_note=video.file_id, 
-    reply_markup=sorov(activity.id)
-)
+        ADMIN_ID, 
+        video_note=video.file_id, 
+        reply_markup=sorov(activity.id)
+    )
 
-    data = await state.get_data()
-    reg = data.get("district")
     await bot.send_message(
-    ADMIN_ID, 
-    f"Foydalanuvchi: @{msg.from_user.username} (ID: {msg.from_user.id})\nTomonidan video \n\n {reg}"
-)
+        ADMIN_ID, 
+        f"Foydalanuvchi: @{msg.from_user.username} (ID: {msg.from_user.id})\nTumani: {user_obj.district}"
+    )
         
 @dp_a.callback_query(F.data.startswith("yes_"))
-async def sendtogroup(callback: types.CallbackQuery, state: FSMContext, i18n: I18nContext):
-    data = await state.get_data()
-    video_id = data.get('video')
-    u_id = data.get('user_id')      
-    region = data.get('district')
-
-    if not video_id:
-        return await callback.answer("Video ma'lumotlari topilmadi!")
-
-    
-    await bot.send_video_note(GROUP_ID, video_id)
-    await callback.message.delete()
+async def sendtogroup(callback: types.CallbackQuery, i18n: I18nContext):
+   
+    activity_id = callback.data.split("_")[1]
 
     @sync_to_async
     def process_acceptance():
         try:
             with transaction.atomic():
-                target_user = User.objects.select_for_update().get(telegram_id=u_id)
+                
+                activity = UserActivities.objects.select_related('user').select_for_update().get(id=activity_id)
+
+                if activity.status == "accepted":
+                    return "already_done", None
+
+                
+                target_user = activity.user
                 target_user.balance += 5000
                 target_user.save()
 
-                UserActivities.objects.create(
-                    user=target_user, 
-                    amount=5000,
-                    region=region,
-                    status="accepted"
-                )
-                return True
+                
+                activity.status = "accepted"
+                activity.amount = 5000
+                activity.save()
+
+                return "success", activity
+        except UserActivities.DoesNotExist:
+            return "not_found", None
         except Exception as e:
             print(f"Xatolik: {e}")
-            return False
+            return "error", None
 
-    success = await process_acceptance()
-    if success:
+    
+    result, activity = await process_acceptance()
+
+    if result == "success":
+       
+        if activity.video_file_id:
+            try:
+                await bot.send_video_note(GROUP_ID, activity.video_file_id)
+            except Exception as e:
+                print(f"Video yuborishda xato: {e}")
+
+        
+        await callback.message.delete()
+        
+        
+        u_id = activity.user.telegram_id 
+        
         await bot.send_message(u_id, i18n.get("amount"), reply_markup=main_menu(i18n))
-        await state.clear()
+        await callback.answer("Tasdiqlandi!")
+
+    elif result == "already_done":
+        await callback.answer("Bu ariza allaqachon tasdiqlangan!")
     else:
-        await callback.answer("Xatolik yuz berdi")
+        await callback.answer("Ma'lumot topilmadi yoki xatolik yuz berdi!")
     
 @dp_a.callback_query(F.data.startswith("no_"))
-async def decline(i18n: I18nContext):
+async def decline(callback: CallbackQuery, i18n: I18nContext):
     await i18n.set_locale(DEFAULT_LANGUAGE)
-    await bot.send_message(user_id, i18n("declined"), reply_markup=main_menu(i18n))
+    activity_id = callback.data.split("_")[1]
+
+    
+    activity = await sync_to_async(
+        lambda: UserActivities.objects.select_related('user').select_for_update().get(id=activity_id)
+    )()
+
+    
+    chat_id = activity.user.id  
+
+    
+    await bot.send_message(chat_id, i18n("declined"), reply_markup=main_menu(i18n))
