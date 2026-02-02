@@ -15,3 +15,6 @@ class Questions(StatesGroup):
     
 class FeedbackState(StatesGroup):
     waiting_for_feedback = State()
+    
+class ForgotPassword(StatesGroup):
+    waiting_for_phone = State()

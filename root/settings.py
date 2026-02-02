@@ -13,7 +13,14 @@ SECRET_KEY = "django-insecure-2@vnvs@7q%r_x5&g=-wqf3s&ji=i77*usvscq)@3v^6x=l3v2w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = []
+# '.ngrok-free.app', '.ngrok-free.dev', 'localhost', '127.0.0.1'
+# Ngrok bergan manzilni buni ichiga yozing
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://*.ngrok-free.app',
+#     'https://*.ngrok-free.dev',
+# ]
 # settings.py
 # CSRF_TRUSTED_ORIGINS = ['https://jeffie-unsqueamish-diamond.ngrok-free.dev/']
 
@@ -111,8 +118,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

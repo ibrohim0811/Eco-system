@@ -63,10 +63,10 @@ async def vide_process(msg: types.Message, i18n: I18nContext, state: FSMContext)
     if video.file_size > 10 * 1024 * 1024:
         return await msg.answer("Video 10 MB dan katta!")
 
-    # Userni bazadan olamiz
+
     user_obj = await sync_to_async(User.objects.get)(telegram_id=msg.from_user.id)
     
-    # FAQAT BIR MARTA yaratamiz
+
     activity = await sync_to_async(UserActivities.objects.create)(
         user=user_obj,
         amount=5000,
@@ -75,7 +75,7 @@ async def vide_process(msg: types.Message, i18n: I18nContext, state: FSMContext)
         video_file_id=video.file_id
     )
     
-    # State'ni yangilaymiz
+
     await state.update_data(
         video=video.file_id, 
         user_id=msg.from_user.id,
@@ -84,7 +84,6 @@ async def vide_process(msg: types.Message, i18n: I18nContext, state: FSMContext)
 
     await msg.answer(i18n("accepted"), reply_markup=main_menu(i18n))
 
-    # Adminga yuboramiz
     await bot.send_video_note(
         ADMIN_ID, 
         video_note=video.file_id, 
@@ -152,19 +151,47 @@ async def sendtogroup(callback: types.CallbackQuery, i18n: I18nContext):
         await callback.answer("Bu ariza allaqachon tasdiqlangan!")
     else:
         await callback.answer("Ma'lumot topilmadi yoki xatolik yuz berdi!")
+        
+        
     
 @dp_a.callback_query(F.data.startswith("no_"))
 async def decline(callback: CallbackQuery, i18n: I18nContext):
     await i18n.set_locale(DEFAULT_LANGUAGE)
     activity_id = callback.data.split("_")[1]
 
-    
-    activity = await sync_to_async(
-        lambda: UserActivities.objects.select_related('user').select_for_update().get(id=activity_id)
-    )()
+    def update_activity_status():
+        with transaction.atomic():
+            try:
+                act = UserActivities.objects.select_related('user').get(id=activity_id)
+                act.status = "rejected"
+                act.save()
+                return act
+            except UserActivities.DoesNotExist:
+                return None
 
-    
-    chat_id = activity.user.id  
+    activity = await sync_to_async(update_activity_status)()
 
-    
-    await bot.send_message(chat_id, i18n("declined"), reply_markup=main_menu(i18n))
+    if not activity:
+        await callback.answer("Xato: Ariza topilmadi!", show_alert=True)
+        return
+
+   
+    chat_id = activity.user.telegram_id 
+
+    try:
+        await bot.send_message(
+            chat_id=chat_id, 
+            text=i18n("declined"), 
+            reply_markup=main_menu(i18n)
+        )
+        await callback.answer(i18n("declined"), show_alert=False)
+        
+        await callback.message.edit_text(f"ID: {activity_id} - {i18n('declined')}")
+
+    except Exception as e:
+        
+        print(f"Telegram yuborishda xato: {e}")
+        await callback.answer(
+            "Baza yangilandi, lekin foydalanuvchiga xabar bormadi (Chat not found).", 
+            show_alert=True
+        )

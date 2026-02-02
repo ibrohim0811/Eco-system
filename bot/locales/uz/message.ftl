@@ -39,8 +39,12 @@ uz = O'zbekcha
 ru = Ruscha
 en = Inglizcha
 savol = Savolingizni yozing
+send_sms = Tizimga kirish ma'lumotlarini SMS orqali olish uchun raqamingizni yuboring:
+info = Ma'lumotlar
 tel= Telefon raqamni ulashish 📞
-
+sended = raqamiga SMS orqali yuborildi.
+not_found = ❌ Ma'lumotlar topildi, lekin SMS yuborishda xatolik yuz berdi.
+data_not_found = ❌ Kechirasiz, ushbu raqamga bog'langan hisob topilmadi.
 offer = Savol va takliflar 💬
 quest = Savollar💬
 off_er = Takliflar 💬
@@ -55,3 +59,7 @@ amount = Videoxabaringiz tasdiqlandi hisobingiz 5000 UZS to'ldirildi ✅
 choose= Menyudan birini tanlang 👇
 declined = Videoxabaringiz Tasdiqlanmadi ❌
 back = ⬅️ Ortga
+
+-----password-------
+forgot_password =  Parol esdan chiqdi 🤔
+forgot_faq = Siz parolingizni va loginingizni tiklash uchun sizni 2 qadamli tekshiruv bosqichidan oitasiz !

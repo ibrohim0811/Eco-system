@@ -21,6 +21,9 @@ def main_menu(i18n: I18nContext) -> ReplyKeyboardMarkup:
             ],
             [
                 KeyboardButton(text=_("settings"))
+            ],
+            [
+                KeyboardButton(text=_("forgot_password"))
             ]
         ],
         resize_keyboard=True

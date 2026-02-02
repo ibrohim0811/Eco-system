@@ -18,3 +18,6 @@ setup:
 
 admin:
     python manage.py createsuperuser
+
+cd:
+    cd "C:\Users\ucer\OneDrive\Desktop\other projects\Eco system\bot"

@@ -26,7 +26,12 @@ from handlers.alert import dp_a as alert
 from handlers.questions import dp_ai as ai
 from handlers.offer import dp_oai as oai
 from handlers.about_us import dp_us 
+from admin.admin import dp_admin
+from handlers.forgot_password import dp_p
 from app.models import User
+from updates.pdf import generate_users_pdf
+from updates.crud import get_all_users_from_db, get_all_tg_ids
+from aiogram.exceptions import TelegramForbiddenError
 from buttons.default import (
     main_menu, settings as settings_kb, 
     contact, regions
@@ -49,6 +54,9 @@ dp = Dispatcher(storage=MemoryStorage())
 i18n_middleware.setup(dispatcher=dp)
 DEFAULT_LANGUAGE =  os.getenv("DEFAULT_LANGUAGE", "uz")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+ADMINS_RAW = os.getenv("ADMIN_ID")
+ADMINS = [int(id.strip()) for id in ADMINS_RAW.split(",") if id.strip()]
+CHAT_ADMIN = os.getenv("CHAT_ADMIN")
 
 
 @dp.message(Command('start'))
@@ -146,9 +154,52 @@ async def region_process(message: types.Message, i18n: I18nContext, state: FSMCo
         await state.set_state(Register.region)
         await message.answer(i18n("err_region"))
     
-        
+
+@dp.message(Command("alluser"))
+async def all_user_stats(message: types.Message):
+    if message.from_user.id not in ADMINS:
+        return await message.answer("You are not granted admin rights. ❌")
+
     
+    users = get_all_users_from_db()
     
+    if not users:
+        return await message.answer("📭 Foydalanuvchilar topilmadi.")
+
+    # 2. PDF faylni yaratish
+    pdf_file_path = generate_users_pdf(users)
+
+    # 3. Yuborish
+    await message.answer_document(
+        types.FSInputFile(pdf_file_path),
+        caption=f"📊 Barcha foydalanuvchilar ro'yxati\nJami: {len(users)} ta"
+    )   
+
+
+async def send_startup_notification(bot: Bot):
+    # Bazadan barcha ID larni olamiz
+    users = get_all_tg_ids()
+    
+    text = "🚀 **Diqqat! Bot tizimi yangilandi va qayta ishga tushdi.**\n\nEndi barcha funksiyalar yanada tezroq ishlaydi!\n Adminlar ishi yanada osonlashdi 😴\n Endi statiskani botdan turib kuzating 📈 !!"
+    
+    success = 0
+    blocked = 0
+    
+    for user_id in users:
+        try:
+            await bot.send_message(chat_id=user_id, text=text, parse_mode="Markdown")
+            success += 1
+            
+            await asyncio.sleep(0.05) 
+        except TelegramForbiddenError:
+            blocked += 1
+        except Exception as e:
+            print(f"Xatolik {user_id}: {e}")
+
+    # Adminga hisobot yuborish
+    
+
+
 @dp.message(lambda message, i18n: message.text == i18n("settings"))
 async def settings_handler(message: types.Message, i18n: I18nContext):
     await message.answer(i18n("settings"), reply_markup=settings_kb(i18n))
@@ -183,12 +234,14 @@ async def english(callback: types.CallbackQuery, i18n: I18nContext):
 
 async def main():
     bot = Bot(token=BOT_TOKEN)
-    
+    # await send_startup_notification(bot)
     dp.update.middleware(i18n_middleware)
     dp.include_router(alert)
+    dp.include_router(dp_admin)
     dp.include_router(ai)
     dp.include_router(oai)
     dp.include_router(dp_us)
+    dp.include_router(dp_p)
     await dp.start_polling(bot)
 
 

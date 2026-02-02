@@ -42,4 +42,23 @@ class UserActivities(BaseCreateModel):
         db_column='user_phone' 
     )
     
+class ActivityLog(models.Model):
+    STATUS_CHOICES = (
+        ("pending", "Pending"),
+        ("accepted", "Accepted"),
+        ("rejected", "Rejected"),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
+    amount = models.IntegerField(default=0)
+    region = models.CharField(max_length=150)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    video_file_id = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.amount} ball"
+
+    
     

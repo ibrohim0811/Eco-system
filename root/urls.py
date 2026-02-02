@@ -19,8 +19,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 
-from root import settings
-from app.views import MainTemplateView, AnimationTemplateView, UserLoginView, UserInfoDetailView, user_out, ActivityListView
+# from root import settings
+from django.conf import settings
+from app.views import MainTemplateView, AnimationTemplateView, UserLoginView, UserInfoDetailView, user_out
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -29,7 +30,7 @@ urlpatterns = [
     path("login/", UserLoginView.as_view(), name="login"),
     path("user_profile/<uuid:uuid>", UserInfoDetailView.as_view(), name="user"),
     path("logout/", user_out, name='logout'),
-    path("activities/<uuid:uuid>", ActivityListView.as_view(), name='activities')
+  
 ]
 
 

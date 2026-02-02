@@ -50,3 +50,11 @@ declined = Your video message was not verified ❌
 first_name = Enter your First name
 last_name = Enter your Last Name
 info_admin = 👨‍💻This bot is an Asynchronous Telegram Bot created by the leader of the Eco Generation group.
+
+forgot_password = Forgot password 🤔
+forgot_faq = You will be prompted to go through 2-step verification to recover your password and login!
+send_sms = Send your number to receive login information via SMS:
+info = Informations
+sended = sent via SMS to the number.
+not_found = ❌ Data found, but an error occurred while sending SMS.
+data_not_found = Sorry Informations not found ❌
